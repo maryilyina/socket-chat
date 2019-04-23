@@ -3,8 +3,8 @@ package server_side
 import common.*
 import java.net.Socket
 
-class ServerClient(override val socket: Socket, val headServer: Server) : BaseClientActor(),
-    MessageHandler {
+class ServerClient(override val socket: Socket,
+                   private val headServer: Server) : BaseClientActor(), MessageHandler {
 
     override val messageHandler = this
 
@@ -15,6 +15,7 @@ class ServerClient(override val socket: Socket, val headServer: Server) : BaseCl
         AssignUsernameMessage(""),
         NewMessageFromUserMessage("", "")
     ).map { it.messageHeader to it }.toMap()
+
 
     override fun handleMessage(message: ChatMessage, params: ArrayList<String>) {
         when (message) {
@@ -27,7 +28,14 @@ class ServerClient(override val socket: Socket, val headServer: Server) : BaseCl
                     messageQueue.put(ConnectionEstablishedMessage())
                     headServer.registerNewUser(name, this)
                 }
+            }
 
+            is NewMessageFromUserMessage -> {
+                val name = params[0]
+                val msg = params[1]
+                println("New message from $name: $msg")
+
+                headServer.distributeNewMessage(name, msg)
             }
         }
     }

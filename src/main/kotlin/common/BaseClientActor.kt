@@ -16,7 +16,6 @@ abstract class BaseClientActor {
 
         Thread(writer).start()
         Thread(reader).start()
-
     }
 
 }

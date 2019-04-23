@@ -3,16 +3,10 @@ package client_side
 import common.*
 import java.net.Socket
 
-class Client(override val socket: Socket, val ui: ClientInterface) : BaseClientActor(), MessageHandler {
+class Client(override val socket: Socket, private val ui: UIClient) : BaseClientActor(), MessageHandler {
     override val messageHandler = this
 
     lateinit var username: String
-
-    fun start(name: String) {
-        start()
-        username = name
-        messageQueue.put(AssignUsernameMessage(username))
-    }
 
     override val registeredMessages =
         listOf(
@@ -23,10 +17,8 @@ class Client(override val socket: Socket, val ui: ClientInterface) : BaseClientA
 
     override fun handleMessage(message: ChatMessage, params: ArrayList<String>) {
         when (message) {
-            is NewUserConnectedMessage -> {
-                val name = params[0]
-                if (name != username)
-                    ui.addNewUser(name)
+            is ConnectionEstablishedMessage -> {
+                ui.connect()
             }
             is NewMessageFromUserMessage -> {
                 val name = params[0]
@@ -34,10 +26,22 @@ class Client(override val socket: Socket, val ui: ClientInterface) : BaseClientA
                 if (name != username)
                     ui.newMessageFromUser(name, msg)
             }
-            is ConnectionEstablishedMessage -> {
-                println("Successfully connected to server.")
+            is NewUserConnectedMessage -> {
+                val name = params[0]
+                if (name != username)
+                    ui.addNewUser(name)
             }
         }
+    }
+
+    fun start(name: String) {
+        start()
+        username = name
+        messageQueue.put(AssignUsernameMessage(username))
+    }
+
+    fun sendMessage(messageToSend: String) {
+       messageQueue.put(NewMessageFromUserMessage(username, messageToSend))
     }
 
 }
