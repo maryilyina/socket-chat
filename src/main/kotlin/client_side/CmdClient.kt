@@ -2,6 +2,8 @@ package client_side
 
 import java.net.Socket
 
+const val STOP_MESSAGE = "/quit"
+
 class CmdClient(serverAddress: String, serverPort: Int): UIClient {
 
     private val socket = Socket(serverAddress, serverPort)
@@ -18,6 +20,15 @@ class CmdClient(serverAddress: String, serverPort: Int): UIClient {
         Thread(this).start()
     }
 
+    override fun run() {
+        println("Successfully connected to server. Enter your messages. \nSend '/quit' message to disconnect")
+        while (connectedToServer) {
+            val messageToSend = readLine() ?: continue
+            if (messageToSend == STOP_MESSAGE) client.requestDisconnect()
+            else client.sendMessage(messageToSend)
+        }
+    }
+
     override fun askUsername(): String {
         var name : String? = null
         while (name == null) {
@@ -27,25 +38,23 @@ class CmdClient(serverAddress: String, serverPort: Int): UIClient {
         return name
     }
 
-    override fun addNewUser(name: String) {
+    override fun newUserInChat(name: String) {
         println("New user $name in chat")
     }
 
-    override fun newMessageFromUser(name: String, msg: String) {
+    override fun incomingMessage(name: String, msg: String) {
         println("$name: $msg")
     }
 
-    override fun run() {
-        println("Successfully connected to server. Enter your messages.")
-        while (connectedToServer) {
-            val messageToSend = readLine()
-            if (messageToSend != null) {
-                client.sendMessage(messageToSend)
-            }
-        }
+    override fun usernameExists() {
+        println("Username is already registered. Please select a new one.")
     }
 
-    override fun usernameUsed() {
-        println("Username is already registered. Please select a new one.")
+    override fun userLeftChat(name: String) {
+        println("User $name left chat.")
+    }
+
+    override fun disconnect() {
+        println("Disconnected from server.")
     }
 }

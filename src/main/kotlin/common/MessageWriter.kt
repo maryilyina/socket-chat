@@ -9,13 +9,18 @@ class MessageWriter(stream: OutputStream,
                     private val messageQueue: BlockingQueue<ChatMessage>) : Runnable {
 
     private val streamWriter = BufferedWriter(OutputStreamWriter(stream))
-    private val connected = true
+    var connected = true
     private fun isConnected() = connected
 
     override fun run() {
         while (isConnected()) {
             if (messageQueue.isNotEmpty()) {
                 val message = messageQueue.poll()
+
+                if (message is StopSessionMessage) {
+                    this.connected = false
+                    break
+                }
 
                 streamWriter.write(message.messageHeader)
                 streamWriter.newLine()

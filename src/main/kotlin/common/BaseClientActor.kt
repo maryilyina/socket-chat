@@ -1,21 +1,30 @@
 package common
 
 import java.net.Socket
+import java.util.concurrent.BlockingQueue
 import java.util.concurrent.LinkedBlockingQueue
 
-abstract class BaseClientActor {
+abstract class BaseClientActor : MessageHandler {
 
-    protected var messageQueue = LinkedBlockingQueue<ChatMessage>()
-    abstract val registeredMessages : Map<String, ChatMessage>
-    abstract val socket: Socket
-    abstract val messageHandler: MessageHandler
+    protected lateinit var messageQueue : BlockingQueue<ChatMessage>
+    protected abstract val registeredMessages : Map<String, ChatMessage>
+    protected abstract val socket: Socket
+
+    private lateinit var writer : MessageWriter
+    private lateinit var reader : MessageReader
 
     open fun start() {
-        val writer = MessageWriter(socket.getOutputStream(), messageQueue)
-        val reader = MessageReader(socket.getInputStream(), messageHandler, registeredMessages)
+        messageQueue = LinkedBlockingQueue<ChatMessage>()
+        writer = MessageWriter(socket.getOutputStream(), messageQueue)
+        reader = MessageReader(socket.getInputStream(), this, registeredMessages)
 
         Thread(writer).start()
         Thread(reader).start()
     }
 
+    fun disconnect() {
+        reader.connected = false
+        messageQueue.put(StopSessionMessage())
+        //socket.close()
+    }
 }

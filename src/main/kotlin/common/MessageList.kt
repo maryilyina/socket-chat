@@ -14,3 +14,12 @@ class ConnectionEstablishedMessage :
 
 class UsernameExistsMessage :
     ChatMessage(APIMessages.USERNAME_EXISTS)
+
+class DisconnectRequestMessage :
+    ChatMessage(APIMessages.DISCONNECT_REQUEST)
+
+class UserDisconnectedMessage(username: String) :
+    ChatMessage(APIMessages.USER_DISCONNECTED, username)
+
+class StopSessionMessage :
+    ChatMessage(APIMessages.STOP_SESSION)

@@ -4,16 +4,15 @@ import common.*
 import java.net.Socket
 
 class ServerClient(override val socket: Socket,
-                   private val headServer: Server) : BaseClientActor(), MessageHandler {
-
-    override val messageHandler = this
+                   private val headServer: Server) : BaseClientActor() {
 
     lateinit var username : String
 
     override val registeredMessages = listOf(
         NewUserConnectedMessage(""),
         AssignUsernameMessage(""),
-        NewMessageFromUserMessage("", "")
+        NewMessageFromUserMessage("", ""),
+        DisconnectRequestMessage()
     ).map { it.messageHeader to it }.toMap()
 
 
@@ -30,13 +29,15 @@ class ServerClient(override val socket: Socket,
                 }
                 else messageQueue.put(UsernameExistsMessage())
             }
-
             is NewMessageFromUserMessage -> {
                 val name = params[0]
                 val msg = params[1]
                 println("New message from $name: $msg")
-
                 headServer.distributeNewMessage(name, msg)
+            }
+            is DisconnectRequestMessage -> {
+                println("Client $username disconnected")
+                headServer.excludeUser(username)
             }
         }
     }

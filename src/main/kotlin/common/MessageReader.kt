@@ -12,7 +12,8 @@ class MessageReader(
 
     private val streamReader = BufferedReader(InputStreamReader(inputStream))
 
-    private fun isConnected() = true
+    var connected = true
+    private fun isConnected() = connected
 
     override fun run() {
         try {

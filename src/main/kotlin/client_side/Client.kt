@@ -3,8 +3,7 @@ package client_side
 import common.*
 import java.net.Socket
 
-class Client(override val socket: Socket, private val ui: UIClient) : BaseClientActor(), MessageHandler {
-    override val messageHandler = this
+class Client(override val socket: Socket, private val ui: UIClient) : BaseClientActor() {
 
     lateinit var username: String
 
@@ -13,7 +12,9 @@ class Client(override val socket: Socket, private val ui: UIClient) : BaseClient
             NewUserConnectedMessage(""),
             NewMessageFromUserMessage("", ""),
             ConnectionEstablishedMessage(),
-            UsernameExistsMessage()
+            UsernameExistsMessage(),
+            UserDisconnectedMessage(""),
+            StopSessionMessage()
         ).map { it.messageHeader to it }.toMap()
 
     override fun handleMessage(message: ChatMessage, params: ArrayList<String>) {
@@ -25,16 +26,25 @@ class Client(override val socket: Socket, private val ui: UIClient) : BaseClient
                 val name = params[0]
                 val msg = params[1]
                 if (name != username)
-                    ui.newMessageFromUser(name, msg)
+                    ui.incomingMessage(name, msg)
             }
             is NewUserConnectedMessage -> {
                 val name = params[0]
                 if (name != username)
-                    ui.addNewUser(name)
+                    ui.newUserInChat(name)
             }
             is UsernameExistsMessage -> {
-                ui.usernameUsed()
+                ui.usernameExists()
                 registerName(ui.askUsername())
+            }
+            is UserDisconnectedMessage -> {
+                val name = params[0]
+                ui.userLeftChat(name)
+            }
+            is StopSessionMessage -> {
+                ui.disconnect()
+                super.disconnect()
+                socket.close()
             }
         }
     }
@@ -51,6 +61,11 @@ class Client(override val socket: Socket, private val ui: UIClient) : BaseClient
 
     fun sendMessage(messageToSend: String) {
        messageQueue.put(NewMessageFromUserMessage(username, messageToSend))
+    }
+
+    fun requestDisconnect() {
+        messageQueue.put(DisconnectRequestMessage())
+        //super.disconnect()
     }
 
 }
