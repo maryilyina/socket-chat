@@ -7,4 +7,5 @@ interface UIClient : Runnable {
     fun askUsername() : String
     fun newMessageFromUser(name: String, msg: String)
     fun connect()
+    fun usernameUsed()
 }

@@ -11,3 +11,6 @@ class NewMessageFromUserMessage(username: String, message: String) :
 
 class ConnectionEstablishedMessage :
     ChatMessage(APIMessages.CONNECTION_ESTABLISHED)
+
+class UsernameExistsMessage :
+    ChatMessage(APIMessages.USERNAME_EXISTS)

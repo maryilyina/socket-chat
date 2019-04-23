@@ -18,7 +18,7 @@ class MessageReader(
         try {
             while (isConnected()) {
                 val messageHeader = streamReader.readLine()
-                println("Reader: Received message $messageHeader")
+                //println("Reader: Received message $messageHeader")
 
                 if (messageHeader in registeredMessages) {
                     val messageType = registeredMessages.getValue(messageHeader)

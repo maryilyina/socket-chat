@@ -12,7 +12,8 @@ class Client(override val socket: Socket, private val ui: UIClient) : BaseClient
         listOf(
             NewUserConnectedMessage(""),
             NewMessageFromUserMessage("", ""),
-            ConnectionEstablishedMessage()
+            ConnectionEstablishedMessage(),
+            UsernameExistsMessage()
         ).map { it.messageHeader to it }.toMap()
 
     override fun handleMessage(message: ChatMessage, params: ArrayList<String>) {
@@ -31,11 +32,19 @@ class Client(override val socket: Socket, private val ui: UIClient) : BaseClient
                 if (name != username)
                     ui.addNewUser(name)
             }
+            is UsernameExistsMessage -> {
+                ui.usernameUsed()
+                registerName(ui.askUsername())
+            }
         }
     }
 
-    fun start(name: String) {
-        start()
+    override fun start() {
+        super.start()
+        registerName(ui.askUsername())
+    }
+
+    fun registerName(name: String) {
         username = name
         messageQueue.put(AssignUsernameMessage(username))
     }

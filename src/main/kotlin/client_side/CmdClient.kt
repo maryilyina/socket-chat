@@ -6,13 +6,16 @@ class CmdClient(serverAddress: String, serverPort: Int): UIClient {
 
     private val socket = Socket(serverAddress, serverPort)
     private lateinit var client : Client
-    private lateinit var username : String
     private var connectedToServer = false
 
     fun start() {
         client = Client(socket, this)
-        username = askUsername()
-        client.start(username)
+        client.start()
+    }
+
+    override fun connect() {
+        connectedToServer = true
+        Thread(this).start()
     }
 
     override fun askUsername(): String {
@@ -23,12 +26,6 @@ class CmdClient(serverAddress: String, serverPort: Int): UIClient {
         }
         return name
     }
-
-    override fun connect() {
-        connectedToServer = true
-        Thread(this).start()
-    }
-
 
     override fun addNewUser(name: String) {
         println("New user $name in chat")
@@ -46,5 +43,9 @@ class CmdClient(serverAddress: String, serverPort: Int): UIClient {
                 client.sendMessage(messageToSend)
             }
         }
+    }
+
+    override fun usernameUsed() {
+        println("Username is already registered. Please select a new one.")
     }
 }

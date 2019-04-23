@@ -5,7 +5,8 @@ import java.io.OutputStream
 import java.io.OutputStreamWriter
 import java.util.concurrent.BlockingQueue
 
-class MessageWriter(stream: OutputStream, val messageQueue: BlockingQueue<ChatMessage>) : Runnable {
+class MessageWriter(stream: OutputStream,
+                    private val messageQueue: BlockingQueue<ChatMessage>) : Runnable {
 
     private val streamWriter = BufferedWriter(OutputStreamWriter(stream))
     private val connected = true
@@ -23,7 +24,7 @@ class MessageWriter(stream: OutputStream, val messageQueue: BlockingQueue<ChatMe
                     streamWriter.newLine()
                 }
                 streamWriter.flush()
-                println("Writer: Sent message: '${message.messageHeader}'")
+                //println("Writer: Sent message: '${message.messageHeader}'")
             }
         }
     }

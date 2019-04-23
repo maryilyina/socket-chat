@@ -28,6 +28,7 @@ class ServerClient(override val socket: Socket,
                     messageQueue.put(ConnectionEstablishedMessage())
                     headServer.registerNewUser(name, this)
                 }
+                else messageQueue.put(UsernameExistsMessage())
             }
 
             is NewMessageFromUserMessage -> {

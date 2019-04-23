@@ -5,7 +5,7 @@ import java.util.concurrent.LinkedBlockingQueue
 
 abstract class BaseClientActor {
 
-    var messageQueue = LinkedBlockingQueue<ChatMessage>()
+    protected var messageQueue = LinkedBlockingQueue<ChatMessage>()
     abstract val registeredMessages : Map<String, ChatMessage>
     abstract val socket: Socket
     abstract val messageHandler: MessageHandler
