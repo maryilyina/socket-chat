@@ -1,4 +1,3 @@
-import client_side.Client
 import server_side.Server
 
 fun main() {

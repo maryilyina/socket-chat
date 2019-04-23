@@ -30,4 +30,6 @@ class CmdClient(serverAddress: String, serverPort: Int): ClientInterface {
     override fun newMessageFromUser(name: String, msg: String) {
         println("$name: $msg")
     }
+
+
 }

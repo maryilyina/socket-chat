@@ -3,7 +3,8 @@ package server_side
 import common.*
 import java.net.Socket
 
-class ServerClient(override val socket: Socket, val headServer: Server) : BaseClientActor(), MessageHandler {
+class ServerClient(override val socket: Socket, val headServer: Server) : BaseClientActor(),
+    MessageHandler {
 
     override val messageHandler = this
 
