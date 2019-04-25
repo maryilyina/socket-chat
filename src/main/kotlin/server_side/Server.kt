@@ -2,29 +2,33 @@ package server_side
 
 import common.NewMessageFromUserMessage
 import common.NewUserConnectedMessage
-import common.StopSessionMessage
 import common.UserDisconnectedMessage
 import java.net.ServerSocket
 import javax.net.ServerSocketFactory
 
-class Server(private val port: Int) {
+class Server(private val port: Int) : Runnable {
 
-    private var clients = mutableMapOf<String, ServerClient>()
+    private var clients = mutableMapOf<String, ServerClientActor>()
     private lateinit var socket : ServerSocket
 
     fun start() {
         socket = ServerSocketFactory.getDefault().createServerSocket(port)
+        Thread(this).run()
+    }
+
+    override fun run() {
         while (socket.isBound) {
             val clientSocket = socket.accept()
 
-            val newClient = ServerClient(clientSocket, this)
+            val newClient = ServerClientActor(clientSocket, this)
             newClient.start()
         }
     }
 
+
     fun nameExists(username: String) = clients.containsKey(username)
 
-    fun registerNewUser(username: String, client: ServerClient) {
+    fun registerNewUser(username: String, client: ServerClientActor) {
         for (other in clients.values) {
             other.sendMessage(NewUserConnectedMessage(username))
         }

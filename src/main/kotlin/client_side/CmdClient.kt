@@ -1,28 +1,12 @@
 package client_side
 
-import java.net.ConnectException
-import java.net.Socket
-
 const val STOP_MESSAGE = "/quit"
 
-class CmdClient(private val serverAddress: String, private val serverPort: Int): UIClient {
+class CmdClient(private val client: Client): UIClient {
 
-    private lateinit var socket : Socket
-    private lateinit var client : Client
     private var connectedToServer = false
 
-    fun start() {
-        try {
-            socket = Socket(serverAddress, serverPort)
-            client = Client(socket, this)
-            client.start()
-        }
-        catch (ex: ConnectException) {
-            socketUnavailable(serverAddress, serverPort)
-        }
-    }
-
-    override fun connect() {
+    override fun start() {
         connectedToServer = true
         Thread(this).start()
     }
@@ -64,10 +48,6 @@ class CmdClient(private val serverAddress: String, private val serverPort: Int):
     override fun disconnect() {
         println("Disconnected from server.")
         connectedToServer = false
-    }
-
-    override fun socketUnavailable(serverAddress: String, serverPort: Int) {
-        println("Unable to connect to $serverAddress:$serverPort")
     }
 
     override fun connectionLost() {

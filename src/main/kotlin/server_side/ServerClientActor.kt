@@ -3,8 +3,8 @@ package server_side
 import common.*
 import java.net.Socket
 
-class ServerClient(override val socket: Socket,
-                   private val headServer: Server) : BaseClientActor() {
+class ServerClientActor(override val socket: Socket,
+                        private val headServer: Server) : BaseClientActor() {
 
     lateinit var username : String
 
@@ -37,12 +37,12 @@ class ServerClient(override val socket: Socket,
                 headServer.distributeNewMessage(name, msg)
             }
             is DisconnectRequestMessage -> {
-                println("Client $username disconnected")
+                println("ClientActor $username disconnected")
                 headServer.excludeUser(username, false)
                 disconnect()
             }
             is ConnectionLostMessage -> {
-                println("Client $username have unexpectedly left chat")
+                println("ClientActor $username have unexpectedly left chat")
                 headServer.excludeUser(username, true)
                 disconnect()
             }
