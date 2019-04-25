@@ -18,8 +18,11 @@ class UsernameExistsMessage :
 class DisconnectRequestMessage :
     ChatMessage(APIMessages.DISCONNECT_REQUEST)
 
-class UserDisconnectedMessage(username: String) :
-    ChatMessage(APIMessages.USER_DISCONNECTED, username)
+class UserDisconnectedMessage(username: String, unexpectedly: Boolean) :
+    ChatMessage(APIMessages.USER_DISCONNECTED, username, unexpectedly.toString())
 
 class StopSessionMessage :
     ChatMessage(APIMessages.STOP_SESSION)
+
+class ConnectionLostMessage :
+    ChatMessage(APIMessages.CONNECTION_LOST)

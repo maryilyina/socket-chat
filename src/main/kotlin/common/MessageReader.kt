@@ -6,8 +6,8 @@ import java.io.InputStreamReader
 
 class MessageReader(
     inputStream: InputStream,
-    private val messageHandler: MessageHandler,
-    private val registeredMessages: Map<String, ChatMessage>
+    private val registeredMessages: Map<String, ChatMessage>,
+    private val messageHandler: MessageHandler
 ) : Runnable {
 
     private val streamReader = BufferedReader(InputStreamReader(inputStream))
@@ -29,7 +29,9 @@ class MessageReader(
 
                     messageHandler.handleMessage(messageType, params)
                 }
-                else throw Exception("Reader: Unknown type of message: $messageHeader")
+                else {
+                    println("Reader: Unknown type of message: $messageHeader")
+                }
             }
         } catch (e: Exception) {
             println(e.message)

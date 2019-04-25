@@ -1,18 +1,25 @@
 package client_side
 
+import java.net.ConnectException
 import java.net.Socket
 
 const val STOP_MESSAGE = "/quit"
 
-class CmdClient(serverAddress: String, serverPort: Int): UIClient {
+class CmdClient(private val serverAddress: String, private val serverPort: Int): UIClient {
 
-    private val socket = Socket(serverAddress, serverPort)
+    private lateinit var socket : Socket
     private lateinit var client : Client
     private var connectedToServer = false
 
     fun start() {
-        client = Client(socket, this)
-        client.start()
+        try {
+            socket = Socket(serverAddress, serverPort)
+            client = Client(socket, this)
+            client.start()
+        }
+        catch (ex: ConnectException) {
+            socketUnavailable(serverAddress, serverPort)
+        }
     }
 
     override fun connect() {
@@ -50,11 +57,20 @@ class CmdClient(serverAddress: String, serverPort: Int): UIClient {
         println("Username is already registered. Please select a new one.")
     }
 
-    override fun userLeftChat(name: String) {
-        println("User $name left chat.")
+    override fun userLeftChat(name: String, unexpectedly: Boolean) {
+        println("User $name left chat ${if (unexpectedly) "unexpectedly" else ""}")
     }
 
     override fun disconnect() {
         println("Disconnected from server.")
+        connectedToServer = false
+    }
+
+    override fun socketUnavailable(serverAddress: String, serverPort: Int) {
+        println("Unable to connect to $serverAddress:$serverPort")
+    }
+
+    override fun connectionLost() {
+        println("Cannot connect to server. Try again.")
     }
 }

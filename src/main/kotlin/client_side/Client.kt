@@ -13,8 +13,9 @@ class Client(override val socket: Socket, private val ui: UIClient) : BaseClient
             NewMessageFromUserMessage("", ""),
             ConnectionEstablishedMessage(),
             UsernameExistsMessage(),
-            UserDisconnectedMessage(""),
-            StopSessionMessage()
+            UserDisconnectedMessage("", false),
+            StopSessionMessage(),
+            ConnectionLostMessage()
         ).map { it.messageHeader to it }.toMap()
 
     override fun handleMessage(message: ChatMessage, params: ArrayList<String>) {
@@ -39,12 +40,15 @@ class Client(override val socket: Socket, private val ui: UIClient) : BaseClient
             }
             is UserDisconnectedMessage -> {
                 val name = params[0]
-                ui.userLeftChat(name)
+                val unexpectedly = params[1]
+                ui.userLeftChat(name, unexpectedly.toBoolean())
             }
             is StopSessionMessage -> {
                 ui.disconnect()
-                super.disconnect()
                 socket.close()
+            }
+            is ConnectionLostMessage -> {
+                ui.connectionLost()
             }
         }
     }
@@ -65,7 +69,7 @@ class Client(override val socket: Socket, private val ui: UIClient) : BaseClient
 
     fun requestDisconnect() {
         messageQueue.put(DisconnectRequestMessage())
-        //super.disconnect()
+        super.disconnect()
     }
 
 }

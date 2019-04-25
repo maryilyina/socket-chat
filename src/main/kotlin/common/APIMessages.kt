@@ -11,5 +11,6 @@ class APIMessages {
         const val DISCONNECT_REQUEST      = "Client disconnects from server"
         const val USER_DISCONNECTED       = "User left chat"
         const val STOP_SESSION            = "Stop communication and close socket"
+        const val CONNECTION_LOST         = "Unexpectedly lost connection via socket"
     }
 }

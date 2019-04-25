@@ -41,13 +41,10 @@ class Server(private val port: Int) {
         }
     }
 
-    fun excludeUser(username: String) {
-        val client = clients[username]
-        client?.disconnect()
+    fun excludeUser(username: String, unexpectedly: Boolean) {
         clients.remove(username)
-
         for (other in clients.values) {
-            other.sendMessage(UserDisconnectedMessage(username))
+            other.sendMessage(UserDisconnectedMessage(username, unexpectedly))
         }
     }
 

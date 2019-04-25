@@ -15,8 +15,8 @@ abstract class BaseClientActor : MessageHandler {
 
     open fun start() {
         messageQueue = LinkedBlockingQueue<ChatMessage>()
-        writer = MessageWriter(socket.getOutputStream(), messageQueue)
-        reader = MessageReader(socket.getInputStream(), this, registeredMessages)
+        writer = MessageWriter(socket.getOutputStream(), messageQueue, this)
+        reader = MessageReader(socket.getInputStream(), registeredMessages, this)
 
         Thread(writer).start()
         Thread(reader).start()
@@ -25,6 +25,5 @@ abstract class BaseClientActor : MessageHandler {
     fun disconnect() {
         reader.connected = false
         messageQueue.put(StopSessionMessage())
-        //socket.close()
     }
 }

@@ -12,7 +12,8 @@ class ServerClient(override val socket: Socket,
         NewUserConnectedMessage(""),
         AssignUsernameMessage(""),
         NewMessageFromUserMessage("", ""),
-        DisconnectRequestMessage()
+        DisconnectRequestMessage(),
+        ConnectionLostMessage()
     ).map { it.messageHeader to it }.toMap()
 
 
@@ -37,7 +38,13 @@ class ServerClient(override val socket: Socket,
             }
             is DisconnectRequestMessage -> {
                 println("Client $username disconnected")
-                headServer.excludeUser(username)
+                headServer.excludeUser(username, false)
+                disconnect()
+            }
+            is ConnectionLostMessage -> {
+                println("Client $username have unexpectedly left chat")
+                headServer.excludeUser(username, true)
+                disconnect()
             }
         }
     }
